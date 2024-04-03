@@ -4,8 +4,6 @@
 
 import numpy as np
 
-# Either to show the lean progress or to debug
-
 import time
 
 import func
@@ -14,10 +12,11 @@ import func
 
 def train(Img, is_rectrangle:bool)->bool:
 
-    global neuron_weights_ellipse, neuron_weights_rectangle
+    global neuron_weights_ellipse, neuron_weights_rectangle,\
+           ellipse_bias          , rectangle_bias
 
-    ellipse_score    = np.sum(neuron_weights_ellipse   * Img)
-    rectrangle_score = np.sum(neuron_weights_rectangle * Img)
+    ellipse_score    = np.sum(neuron_weights_ellipse   * Img) + ellipse_bias
+    rectrangle_score = np.sum(neuron_weights_rectangle * Img) + rectangle_bias
 
     softmax_output = func.softmax(np.array([ellipse_score, rectrangle_score]))
 
@@ -27,9 +26,13 @@ def train(Img, is_rectrangle:bool)->bool:
         if judged_shape_is_rectrangle:
             neuron_weights_ellipse   += Img * (softmax_output[0]-1) ** 2
             neuron_weights_rectangle -= Img *  softmax_output[1]    ** 2
+            ellipse_bias   += 1
+            rectangle_bias -= 1
         else:
             neuron_weights_ellipse   -= Img *  softmax_output[0]    ** 2
             neuron_weights_rectangle += Img * (softmax_output[1]-1) ** 2
+            ellipse_bias   -= 1
+            rectangle_bias += 1
         return True
 
     return False
@@ -38,14 +41,19 @@ def train(Img, is_rectrangle:bool)->bool:
 
 def main(save_to_disk:bool = True):
 
-    global neuron_weights_ellipse, neuron_weights_rectangle
+    global neuron_weights_ellipse, neuron_weights_rectangle,\
+           ellipse_bias          , rectangle_bias
 
     neuron_weights_ellipse   = np.load("./train_data/neuron_weights/neuron_weights_ellipse.npy"  )
     neuron_weights_rectangle = np.load("./train_data/neuron_weights/neuron_weights_rectangle.npy")
 
+    biases = np.load("./train_data/biases.npy")
+    ellipse_bias   = biases[0]
+    rectangle_bias = biases[1]
+
     accuary_list = np.load("./train_data/accuary_list.npy")
     
-    with open("./train_data/terms"      , "r") as f: terms      = int(f.read())
+    with open("./train_data/terms"      , "r") as f: terms       = int(f.read())
     with open("./train_data/total_fails", "r") as f: total_fails = int(f.read())
 
     while True:
@@ -73,8 +81,10 @@ def main(save_to_disk:bool = True):
         
         if save_to_disk:
 
-            np.save("./train_data/neuron_weights/neuron_weights_ellipse"  , neuron_weights_ellipse)
+            np.save("./train_data/neuron_weights/neuron_weights_ellipse"  , neuron_weights_ellipse  )
             np.save("./train_data/neuron_weights/neuron_weights_rectangle", neuron_weights_rectangle)
+
+            np.save("./train_data/biases", np.array([ellipse_bias, rectangle_bias]))
             
             np.save("./train_data/accuary_list", accuary_list)
 

@@ -15,6 +15,7 @@ pos_y_array = np.array(np.float64(pos_y_array))
 del Size
 
 __all__ = [
+    "filter"                 ,
     "softmax"                ,
     "create_ellipse_128x128" ,
     "create_random_shape_img",
@@ -95,3 +96,9 @@ def create_random_shape_img() -> np.array:
         Img = np.rot90(Img)
 
     return Img, is_rectangle
+
+
+
+def filter(img, kernel):
+    img
+    return result
