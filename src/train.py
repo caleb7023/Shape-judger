@@ -15,7 +15,7 @@ def train(Img, is_rectrangle:bool)->bool:
     global neuron_weights_ellipse, neuron_weights_rectangle,\
            ellipse_bias          , rectangle_bias
 
-    ellipse_score    = np.sum(neuron_weights_ellipse   * Img) + ellipse_bias
+    ellipse_score    = np.sum(neuron_weights_ellipse   * Img) +   ellipse_bias
     rectrangle_score = np.sum(neuron_weights_rectangle * Img) + rectangle_bias
 
     softmax_output = func.softmax(np.array([ellipse_score, rectrangle_score]))
@@ -24,15 +24,25 @@ def train(Img, is_rectrangle:bool)->bool:
 
     if judged_shape_is_rectrangle != is_rectrangle:
         if judged_shape_is_rectrangle:
-            neuron_weights_ellipse   += Img * (softmax_output[0]-1) ** 2
-            neuron_weights_rectangle -= Img *  softmax_output[1]    ** 2
-            ellipse_bias   += 1
-            rectangle_bias -= 1
+            # Calc introspection score
+            ellipse_introspection_score   = (softmax_output[0]-1) ** 2
+            rectangle_introspection_score =  softmax_output[1]    ** 2
+            # Change weights
+            neuron_weights_ellipse   += Img *   ellipse_introspection_score
+            neuron_weights_rectangle -= Img * rectangle_introspection_score
+            # Change bias
+            ellipse_bias   +=   ellipse_introspection_score
+            rectangle_bias -= rectangle_introspection_score
         else:
-            neuron_weights_ellipse   -= Img *  softmax_output[0]    ** 2
-            neuron_weights_rectangle += Img * (softmax_output[1]-1) ** 2
-            ellipse_bias   -= 1
-            rectangle_bias += 1
+            # Calc introspection score
+            ellipse_introspection_score   =  softmax_output[0]    ** 2
+            rectangle_introspection_score = (softmax_output[1]-1) ** 2
+            # Change weights
+            neuron_weights_ellipse   -= Img *   ellipse_introspection_score
+            neuron_weights_rectangle += Img * rectangle_introspection_score
+            # Change bias
+            ellipse_bias   -=   ellipse_introspection_score
+            rectangle_bias += rectangle_introspection_score
         return True
 
     return False

@@ -101,4 +101,4 @@ def create_random_shape_img() -> np.array:
 
 def filter(img, kernel):
     img
-    return result
+    return kernel
