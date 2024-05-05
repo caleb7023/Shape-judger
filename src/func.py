@@ -15,27 +15,46 @@ pos_y_array = np.array(np.float64(pos_y_array))
 del Size
 
 __all__ = [
+    "swish"                  ,
     "filter"                 ,
     "softmax"                ,
     "create_ellipse_128x128" ,
     "create_random_shape_img",
 ]
 
+class act_func: # Activation functions
 
-# \sigma(\vec{z} _ i) = \frac{e ^ {z _ i - z _ {max}} }{\sum ^ {K - 1} _ {j = 0} z _ j - z _ {max}}
-def softmax(array)->np.ndarray:
+    # \sigma(\vec{z}_i) = \frac{e^{z_i - z_{max}} }{\sum^{K - 1}_{j=0}z_j - z_{max}}
+    def softmax(array)->np.ndarray:
 
-    max_element = np.max(array)
+        max_element = np.max(array)
 
-    e_powered_array = np.exp(array - max_element)
+        e_powered_array = np.exp(array - max_element)
 
-    array_sum = 1 / np.sum(e_powered_array)
+        array_sum = 1 / np.sum(e_powered_array)
 
-    result = e_powered_array * array_sum
+        result = e_powered_array * array_sum
 
-    return result
+        return result
 
+    # \text{Swish}(x) = x \cdot \sigma(x)
+    def swish(input:float)->float:
+        return input * act_func.sigmoid(input)
 
+    # \sigma(x) = \frac{1}{1 + e^{-x}}
+    def sigmoid(input:float)->float:
+        return 1.0 / (1.0 + np.exp(-input))
+    
+    class grad:
+
+        def softmax(softmax_output:np.ndarray, target:np.ndarray, learning_rate:float)->np.ndarray:
+            return (softmax_output - target) * learning_rate
+
+        def swish(input:float)->float:
+            return act_func.swish(input) * (1 - act_func.sigmoid(input)) + act_func.sigmoid(input)
+
+        def sigmoid(input:float)->float:
+            return act_func.sigmoid(input) * (1 - act_func.sigmoid(input))
 
 # Render ellipse.
 # The Pos1 should be smaller than Pos2.

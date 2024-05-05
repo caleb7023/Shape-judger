@@ -10,7 +10,7 @@ import func
 
 
 
-def train(Img, is_rectrangle:bool)->bool:
+def train(Img, learning_rate:float, is_rectrangle:bool)->bool:
 
     global neuron_weights_ellipse, neuron_weights_rectangle,\
            ellipse_bias          , rectangle_bias
@@ -18,15 +18,17 @@ def train(Img, is_rectrangle:bool)->bool:
     ellipse_score    = np.sum(neuron_weights_ellipse   * Img) +   ellipse_bias
     rectrangle_score = np.sum(neuron_weights_rectangle * Img) + rectangle_bias
 
-    softmax_output = func.softmax(np.array([ellipse_score, rectrangle_score]))
+    softmax_output = func.activation_functions.softmax(np.array([ellipse_score, rectrangle_score]))
 
     judged_shape_is_rectrangle = softmax_output[0] < softmax_output[1]
 
     if judged_shape_is_rectrangle != is_rectrangle:
         if judged_shape_is_rectrangle:
             # Calc introspection score
-            ellipse_introspection_score   = (softmax_output[0]-1) ** 2
-            rectangle_introspection_score =  softmax_output[1]    ** 2
+            gradient = func.gradient(softmax_output, np.array([1, 0]), learning_rate)
+            print(gradient)
+            ellipse_introspection_score   = gradient[0]
+            rectangle_introspection_score = gradient[1]
             # Change weights
             neuron_weights_ellipse   += Img *   ellipse_introspection_score
             neuron_weights_rectangle -= Img * rectangle_introspection_score
@@ -35,8 +37,9 @@ def train(Img, is_rectrangle:bool)->bool:
             rectangle_bias -= rectangle_introspection_score
         else:
             # Calc introspection score
-            ellipse_introspection_score   =  softmax_output[0]    ** 2
-            rectangle_introspection_score = (softmax_output[1]-1) ** 2
+            gradient = func.gradient(softmax_output, np.array([0, 1]), learning_rate)
+            ellipse_introspection_score   = gradient[0]
+            rectangle_introspection_score = gradient[1]
             # Change weights
             neuron_weights_ellipse   -= Img *   ellipse_introspection_score
             neuron_weights_rectangle += Img * rectangle_introspection_score
@@ -49,7 +52,7 @@ def train(Img, is_rectrangle:bool)->bool:
 
 
 
-def main(save_to_disk:bool = True):
+def main(save_to_disk:bool = True, learning_rate:float=0.001):
 
     global neuron_weights_ellipse, neuron_weights_rectangle,\
            ellipse_bias          , rectangle_bias
@@ -78,7 +81,7 @@ def main(save_to_disk:bool = True):
 
             img, is_rectrangle = func.create_random_shape_img()
 
-            fails += train(img, is_rectrangle)
+            fails += train(img, 0.001,is_rectrangle)
             
 
         total_fails += fails
