@@ -5,6 +5,7 @@
 import numpy as np # For matrix calculation
 import time # For measuring calculation time
 import func # Functions for rendering and activation functions
+import os # 
 from nn_props import props # Neural network properties
 
 
@@ -30,9 +31,14 @@ def load_datas():
            terms                 , total_fails             ,\
            accuary_list
 
-    neuron_weights_ellipse   = np.load("./train_data/neuron_weights/neuron_weights_ellipse.npy"  )
-    neuron_weights_rectangle = np.load("./train_data/neuron_weights/neuron_weights_rectangle.npy")
+    nn=[]
     
+    for i in range(len(os.listdir("./train_data/nn_props/weights"))):
+        nn += [{
+            "weights":np.load(f"./train_data/nn_props/weights/layer{i[0]}.npy"),
+            "biases" :np.load(f"./train_data/nn_props/biases/layer{i[0]}.npy" )
+        }]
+
     ellipse_bias             = np.load("./train_data/biases.npy")[0]
     rectangle_bias           = np.load("./train_data/biases.npy")[1]
     
