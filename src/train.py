@@ -2,12 +2,10 @@
 
 # Author: caleb7023
 
-import numpy as np
-
-import time
-
-import func
-
+import numpy as np # For matrix calculation
+import time # For measuring calculation time
+import func # Functions for rendering and activation functions
+from nn_props import props # Neural network properties
 
 
 def train(Img, learning_rate:float, is_rectrangle:bool)->bool:
@@ -15,40 +13,33 @@ def train(Img, learning_rate:float, is_rectrangle:bool)->bool:
     global neuron_weights_ellipse, neuron_weights_rectangle,\
            ellipse_bias          , rectangle_bias
 
-    ellipse_score    = np.sum(neuron_weights_ellipse   * Img) +   ellipse_bias
-    rectrangle_score = np.sum(neuron_weights_rectangle * Img) + rectangle_bias
+    output = Img.flatten()
 
-    softmax_output = func.activation_functions.softmax(np.array([ellipse_score, rectrangle_score]))
+    for prop in props["nn"]:
 
-    judged_shape_is_rectrangle = softmax_output[0] < softmax_output[1]
-
-    if judged_shape_is_rectrangle != is_rectrangle:
-        if judged_shape_is_rectrangle:
-            # Calc introspection score
-            gradient = func.gradient(softmax_output, np.array([1, 0]), learning_rate)
-            print(gradient)
-            ellipse_introspection_score   = gradient[0]
-            rectangle_introspection_score = gradient[1]
-            # Change weights
-            neuron_weights_ellipse   += Img *   ellipse_introspection_score
-            neuron_weights_rectangle -= Img * rectangle_introspection_score
-            # Change bias
-            ellipse_bias   +=   ellipse_introspection_score
-            rectangle_bias -= rectangle_introspection_score
-        else:
-            # Calc introspection score
-            gradient = func.gradient(softmax_output, np.array([0, 1]), learning_rate)
-            ellipse_introspection_score   = gradient[0]
-            rectangle_introspection_score = gradient[1]
-            # Change weights
-            neuron_weights_ellipse   -= Img *   ellipse_introspection_score
-            neuron_weights_rectangle += Img * rectangle_introspection_score
-            # Change bias
-            ellipse_bias   -=   ellipse_introspection_score
-            rectangle_bias += rectangle_introspection_score
-        return True
+        output = func.act_func.swish(np.dot(output, np.random.rand(prop["size"], len(output))))
 
     return False
+
+
+
+def load_datas():
+    
+    global neuron_weights_ellipse, neuron_weights_rectangle,\
+           ellipse_bias          , rectangle_bias          ,\
+           terms                 , total_fails             ,\
+           accuary_list
+
+    neuron_weights_ellipse   = np.load("./train_data/neuron_weights/neuron_weights_ellipse.npy"  )
+    neuron_weights_rectangle = np.load("./train_data/neuron_weights/neuron_weights_rectangle.npy")
+    
+    ellipse_bias             = np.load("./train_data/biases.npy")[0]
+    rectangle_bias           = np.load("./train_data/biases.npy")[1]
+    
+    terms       = int(open("./train_data/terms"      , "r").read())
+    total_fails = int(open("./train_data/total_fails", "r").read())
+    
+    accuary_list = np.load("./train_data/accuary_list.npy")
 
 
 
@@ -57,17 +48,7 @@ def main(save_to_disk:bool = True, learning_rate:float=0.001):
     global neuron_weights_ellipse, neuron_weights_rectangle,\
            ellipse_bias          , rectangle_bias
 
-    neuron_weights_ellipse   = np.load("./train_data/neuron_weights/neuron_weights_ellipse.npy"  )
-    neuron_weights_rectangle = np.load("./train_data/neuron_weights/neuron_weights_rectangle.npy")
-
-    biases = np.load("./train_data/biases.npy")
-    ellipse_bias   = biases[0]
-    rectangle_bias = biases[1]
-
-    accuary_list = np.load("./train_data/accuary_list.npy")
-    
-    with open("./train_data/terms"      , "r") as f: terms       = int(f.read())
-    with open("./train_data/total_fails", "r") as f: total_fails = int(f.read())
+    load_datas()
 
     while True:
 
@@ -81,7 +62,7 @@ def main(save_to_disk:bool = True, learning_rate:float=0.001):
 
             img, is_rectrangle = func.create_random_shape_img()
 
-            fails += train(img, 0.001,is_rectrangle)
+            fails += train(img, 0.001, is_rectrangle)
             
 
         total_fails += fails
