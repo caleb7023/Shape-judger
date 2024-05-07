@@ -26,10 +26,8 @@ def train(Img, learning_rate:float, is_rectrangle:bool)->bool:
 
 def load_datas():
     
-    global neuron_weights_ellipse, neuron_weights_rectangle,\
-           ellipse_bias          , rectangle_bias          ,\
-           terms                 , total_fails             ,\
-           accuary_list
+    global terms                 , total_fails             ,\
+           accuary_list          , nn
 
     nn=[]
     
@@ -38,9 +36,6 @@ def load_datas():
             "weights":np.load(f"./train_data/nn_props/weights/layer{i[0]}.npy"),
             "biases" :np.load(f"./train_data/nn_props/biases/layer{i[0]}.npy" )
         }]
-
-    ellipse_bias             = np.load("./train_data/biases.npy")[0]
-    rectangle_bias           = np.load("./train_data/biases.npy")[1]
     
     terms       = int(open("./train_data/terms"      , "r").read())
     total_fails = int(open("./train_data/total_fails", "r").read())
@@ -51,8 +46,7 @@ def load_datas():
 
 def main(save_to_disk:bool = True, learning_rate:float=0.001):
 
-    global neuron_weights_ellipse, neuron_weights_rectangle,\
-           ellipse_bias          , rectangle_bias
+    global nn
 
     load_datas()
 
