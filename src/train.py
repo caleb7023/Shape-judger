@@ -11,16 +11,62 @@ from nn_props import props # Neural network properties
 
 def train(Img, learning_rate:float, is_rectrangle:bool)->bool:
 
-    global neuron_weights_ellipse, neuron_weights_rectangle,\
-           ellipse_bias          , rectangle_bias
+    global nn
+
+    if is_rectrangle:
+        target = np.array([0, 1])
+    else:
+        target = np.array([1, 0])
+
+    output = forward_propagation(Img)
+
+    return np.argmax(output) != np.argmax(target)
+
+
+
+def neurons_forward_propagation(input:np.ndarray, neurons:dict)->np.ndarray:
+    
+    output = np.zeros(np.shape(neurons)[0])
+
+    for i in range(np.shape(neurons)[0]):
+
+        act_func_input = np.sum(np.dot(input, neurons["weights"][i]) + neurons["biases"][i])
+
+        output[i] = func.act_func.swish(act_func_input)
+    
+    return output
+
+
+
+def forward_propagation(Img:np.ndarray)->np.ndarray:
+
+    global nn
 
     output = Img.flatten()
 
-    for prop in props["nn"]:
+    for i in range(np.shape(nn)[0]):
 
-        output = func.act_func.swish(np.dot(output, np.random.rand(prop["size"], len(output))))
+        neurons = nn[i]
 
-    return False
+        output = neurons_forward_propagation(output, neurons)
+
+    return func.act_func.sigmoid(output)
+
+
+
+def neuron_back_propagation(neuron:dict, output:np.ndarray, learning_rate:float, target:np.ndarray)->None:
+
+    pass
+
+
+
+def back_propagation(output, learning_rate:float, target:np.ndarray)->None:
+    
+    global nn
+
+    for neuron in nn[-1]:
+
+        neuron_backpropagation(neuron, output, learning_rate, target)
 
 
 
@@ -46,7 +92,7 @@ def load_datas():
 
 def main(save_to_disk:bool = True, learning_rate:float=0.001):
 
-    global nn
+    global nn, total_fails, terms
 
     load_datas()
 

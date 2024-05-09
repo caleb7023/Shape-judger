@@ -24,37 +24,31 @@ __all__ = [
 
 class act_func: # Activation functions
 
-    # \sigma(\vec{z}_i) = \frac{e^{z_i - z_{max}} }{\sum^{K - 1}_{j=0}z_j - z_{max}}
-    def softmax(array)->np.ndarray:
-
-        max_element = np.max(array)
-
-        e_powered_array = np.exp(array - max_element)
-
-        array_sum = 1 / np.sum(e_powered_array)
-
-        result = e_powered_array * array_sum
-
-        return result
-
     # \text{Swish}(x) = x \cdot \sigma(x)
     def swish(input:float)->float:
-        return input * act_func.sigmoid(input)
+        return input*act_func.sigmoid(input)
 
     # \sigma(x) = \frac{1}{1 + e^{-x}}
     def sigmoid(input:float)->float:
-        return 1.0 / (1.0 + np.exp(-input))
+        return 1.0 / (1.0+np.exp(-input))
+
+    # \cost(x, y) = (x-y)^2
+    def cost(input:float, target:float)->float:
+        return 1.0 / (1.0+np.exp(-input))
     
     class grad:
 
-        def softmax(softmax_output:np.ndarray, target:np.ndarray, learning_rate:float)->np.ndarray:
-            return (softmax_output - target) * learning_rate
-
         def swish(input:float)->float:
-            return act_func.swish(input) * (1 - act_func.sigmoid(input)) + act_func.sigmoid(input)
+            sigmoid_memo = act_func.sigmoid(input)
+            return act_func.swish(input)*(1-sigmoid_memo) + sigmoid_memo
 
         def sigmoid(input:float)->float:
-            return act_func.sigmoid(input) * (1 - act_func.sigmoid(input))
+            return act_func.sigmoid(input)*(1-act_func.sigmoid(input))
+
+        def cost(input:float, target:float)->float:
+            return 2*(input-target)
+
+
 
 # Render ellipse.
 # The Pos1 should be smaller than Pos2.
