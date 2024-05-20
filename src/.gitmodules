@@ -1,0 +1,3 @@
+[submodule "nn_calc_lib"]
+	path = nn_calc_lib
+	url = https://github.com/caleb7023/nn_calc_lib
