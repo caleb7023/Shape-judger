@@ -4,3 +4,4 @@ __pycache__
 passwords.json
 data
 nn_calc_lib
+nn_calc_lib_cuda
