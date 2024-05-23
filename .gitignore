@@ -2,6 +2,6 @@
 __pycache__
 .vscode/*
 passwords.json
-data
+pre-trained
 nn_calc_lib
 nn_calc_lib_cuda
