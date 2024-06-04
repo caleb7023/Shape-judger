@@ -6,7 +6,7 @@ import nn_calc_lib_cuda as nclc
 
 import cupy as cp
 
-from nn_propatiy import prop
+from layers import layers
 
 from random import randrange, getrandbits
 
@@ -47,7 +47,7 @@ def create_img(is_rectangle) -> cp.ndarray:
 
 def main()->None:
     # create the neural network
-    neural_network = nclc.NeuralNetwork(propatiy=prop)
+    neural_network = nclc.Network(layers=layers)
     total_fails = 0
     total_terms = 0
     EACH_TERMS = 1000
@@ -61,7 +61,7 @@ def main()->None:
             # Flatten the img
             img = img.flatten()
             # Forward propagation
-            neural_network.forward_propagation(img)
+            neural_network.forward(img)
             # Get the result
             result = neural_network.value
             # Increase the fails if the result was wrong
@@ -69,7 +69,7 @@ def main()->None:
                 fails += 1
             # Backward propagation
             target_value = cp.array([is_rectangle, not is_rectangle])
-            neural_network.backward_propagation(target_value, 0.01)
+            neural_network.backward(target_value, 0.01)
             if not is_rectangle:
                 neural_network.update()
             if False: # debugging
