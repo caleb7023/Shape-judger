@@ -8,6 +8,8 @@ import cupy as cp
 
 from layers import layers
 
+import pickle as pkl
+
 from random import randrange, getrandbits
 
 # Render ellipse.
@@ -77,5 +79,6 @@ def main()->None:
         total_terms += EACH_TERMS
         total_fails += fails
         print(f"fails:{fails}, total_fails:{total_fails}, accuracy:{round(1-fails/EACH_TERMS, 4)}, total_accuracy:{round(1-total_fails/total_terms, 4)}, total_terms:{total_terms}")
+        
 
 if __name__ == "__main__":main()
